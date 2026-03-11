@@ -1,16 +1,14 @@
 <!DOCTYPE html>
-<input id="phone" placeholder="Digite seu telefone">
-
-<button onclick="startGame()">
-Jogar raspadinha
-</button>
-
 <html lang="pt-BR">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Raspadinha Tales Lanches</title>
+
+<title>Tales Lanches Raspadinha</title>
+
 <link rel="stylesheet" href="style.css">
+
 </head>
 
 <body>
@@ -18,20 +16,22 @@ Jogar raspadinha
 <div class="container">
 
 <h1>🍔 TALES LANCHES</h1>
-<h2>🎉 RASPADINHA PREMIADA</h2>
+<h2>RASPADINHA PREMIADA</h2>
 
-<p>Pedidos acima de <strong>R$60</strong> ganham uma raspadinha!</p>
+<p>Pedidos acima de <b>R$60</b> ganham uma raspadinha!</p>
 
-<div class="card">
-<div id="prize"></div>
-<canvas id="scratch"></canvas>
+<input id="phone" placeholder="Digite seu telefone">
+
+<button onclick="startGame()">Jogar</button>
+
+<p id="msg"></p>
+
+<div id="game" class="grid"></div>
+
 </div>
 
-<p class="instruction">Raspe a área cinza para revelar seu prêmio</p>
-
-</div>
-
-<script src="script.js"></script>
+<script src="firebase.js"></script>
+<script src="game.js"></script>
 
 </body>
 </html>
