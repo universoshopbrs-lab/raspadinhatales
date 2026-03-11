@@ -1,11 +1,12 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Raspadinha Tales Lanches</title>
+<title>🎰 Raspadinha Tales Lanches</title>
 
 <style>
 
@@ -16,7 +17,7 @@ font-family:Arial;
 
 body{
 margin:0;
-background:#000;
+background:linear-gradient(180deg,#000,#111);
 color:white;
 text-align:center;
 }
@@ -30,108 +31,119 @@ border-bottom:3px solid #FFD700;
 }
 
 header h1{
-color:#FFD700;
 margin:0;
+color:#FFD700;
+text-shadow:0 0 10px #FFD700;
 }
 
-/* GRID */
+/* SLOT MACHINE */
 
-.container{
-padding:20px;
-max-width:420px;
-margin:auto;
+.slot-container{
+
+margin-top:50px;
+perspective:800px;
+
 }
 
-.grid{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:12px;
+.slots{
+
+display:flex;
+justify-content:center;
+gap:15px;
+
 }
 
-/* CARTÕES */
+.slot{
 
-.card{
+width:80px;
+height:80px;
 
-position:relative;
-aspect-ratio:1/1;
+background:#000;
+border:3px solid #FFD700;
+
 border-radius:12px;
-overflow:hidden;
-background:#111;
 
-border:2px solid #FFD700;
+display:flex;
+align-items:center;
+justify-content:center;
+
+font-size:40px;
 
 box-shadow:
 0 0 10px #FFD700,
-0 0 20px #FFD700;
+0 0 20px #FFD700 inset;
 
-animation:brilho 2s infinite alternate;
-
-}
-
-@keyframes brilho{
-
-from{box-shadow:0 0 5px #FFD700}
-to{box-shadow:0 0 20px #FFD700}
+transform-style:preserve-3d;
 
 }
 
-.card span{
-
-position:absolute;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
-font-size:40px;
-
-}
-
-/* CANVAS RASPAGEM */
-
-canvas{
-
-position:absolute;
-top:0;
-left:0;
-width:100%;
-height:100%;
-
-}
-
-/* TELA FINAL */
-
-#resultado{
-
-display:none;
-padding:30px;
-
-}
-
-#resultado img{
-
-width:160px;
-margin:20px 0;
-
-}
-
-.codigo{
-
-background:#111;
-border:2px dashed #FFD700;
-padding:15px;
-margin:20px;
-font-size:20px;
-letter-spacing:3px;
-
-}
+/* BOTÃO */
 
 button{
 
+margin-top:40px;
+
 background:#FFD700;
+color:#000;
+
 border:none;
-padding:14px 20px;
-font-size:16px;
-border-radius:8px;
+
+padding:15px 30px;
+
+font-size:18px;
+
+border-radius:10px;
+
 cursor:pointer;
+
+font-weight:bold;
+
+animation:glow 1.5s infinite alternate;
+
+}
+
+@keyframes glow{
+
+from{
+box-shadow:0 0 10px #FFD700;
+}
+
+to{
+box-shadow:0 0 25px #FFD700;
+}
+
+}
+
+/* RESULTADO */
+
+#resultado{
+
+margin-top:30px;
+font-size:22px;
+
+}
+
+/* CONFETE */
+
+.confete{
+
+position:fixed;
+
+width:10px;
+height:10px;
+
+top:-10px;
+
+animation:cair 3s linear forwards;
+
+}
+
+@keyframes cair{
+
+to{
+transform:translateY(100vh) rotate(720deg);
+opacity:0;
+}
 
 }
 
@@ -143,194 +155,73 @@ cursor:pointer;
 
 <header>
 
-<h1>🎰 Raspadinha Tales Lanches</h1>
+<h1>🎰 Tales Lanches</h1>
 
 </header>
 
-<div class="container">
+<div class="slot-container">
 
-<div id="jogo">
+<div class="slots">
 
-<div class="grid" id="grid"></div>
-
-</div>
-
-<div id="resultado">
-
-<h2 id="titulo"></h2>
-
-<img id="imgPremio">
-
-<div class="codigo" id="codigo"></div>
-
-<button onclick="compartilhar()">Compartilhar no WhatsApp</button>
+<div class="slot" id="s1">❓</div>
+<div class="slot" id="s2">❓</div>
+<div class="slot" id="s3">❓</div>
 
 </div>
 
+<button onclick="girar()">🎰 Girar Slot</button>
+
+<div id="resultado"></div>
+
 </div>
 
-<audio id="som" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
+<audio id="som" src="https://assets.mixkit.co/active_storage/sfx/2001/2001-preview.mp3"></audio>
 
 <script>
 
-/* BLOQUEIO */
+if(localStorage.getItem("slotUsado")){
 
-if(localStorage.getItem("raspadinha")){
-document.body.innerHTML="<h2 style='padding:40px'>⚠️ Você já usou sua raspadinha</h2>";
-}
-
-/* PREMIOS */
-
-const premios={
-
-"🍔":{nome:"X Burguer Grátis",img:"https://cdn-icons-png.flaticon.com/512/3075/3075977.png"},
-"🥤":{nome:"Coca Lata",img:"https://cdn-icons-png.flaticon.com/512/3050/3050155.png"},
-"🧀":{nome:"Cheddar Grátis",img:"https://cdn-icons-png.flaticon.com/512/685/685352.png"}
-
-};
-
-/* SIMBOLOS */
-
-const simbolos=[
-
-"🍔","🍔","🍔",
-"🥤","🥤","🥤",
-"🧀","🧀",
-"❌"
-
-];
-
-let lista=[...simbolos].sort(()=>Math.random()-0.5);
-
-let resultados=[];
-let raspados=0;
-
-const grid=document.getElementById("grid");
-
-/* GERAR CARTELA */
-
-for(let i=0;i<9;i++){
-
-let card=document.createElement("div");
-card.className="card";
-
-let span=document.createElement("span");
-span.innerText=lista[i];
-
-card.appendChild(span);
-
-let canvas=document.createElement("canvas");
-card.appendChild(canvas);
-
-grid.appendChild(card);
-
-resultados.push(lista[i]);
-
-let ctx=canvas.getContext("2d");
-
-canvas.width=300;
-canvas.height=300;
-
-/* TEXTURA RASPAGEM */
-
-let grad=ctx.createLinearGradient(0,0,300,300);
-
-grad.addColorStop(0,"#bbb");
-grad.addColorStop(1,"#666");
-
-ctx.fillStyle=grad;
-
-ctx.fillRect(0,0,300,300);
-
-ctx.fillStyle="#222";
-ctx.font="bold 30px Arial";
-ctx.fillText("RASPE",90,160);
-
-/* RASPAGEM */
-
-let raspando=false;
-
-function raspar(x,y){
-
-ctx.globalCompositeOperation="destination-out";
-
-ctx.beginPath();
-ctx.arc(x,y,25,0,Math.PI*2);
-ctx.fill();
+document.body.innerHTML="<h2 style='padding:40px'>⚠️ Você já jogou hoje</h2>";
 
 }
 
-canvas.addEventListener("mousedown",()=>raspando=true);
+const simbolos=["🍔","🥤","🧀","❌"];
 
-canvas.addEventListener("mouseup",()=>{
+function girar(){
 
-raspando=false;
-raspados++;
-check();
+let spins=0;
 
-});
+let intervalo=setInterval(()=>{
 
-canvas.addEventListener("mousemove",(e)=>{
+document.getElementById("s1").innerText=simbolos[Math.floor(Math.random()*simbolos.length)];
+document.getElementById("s2").innerText=simbolos[Math.floor(Math.random()*simbolos.length)];
+document.getElementById("s3").innerText=simbolos[Math.floor(Math.random()*simbolos.length)];
 
-if(!raspando) return;
+spins++;
 
-let r=canvas.getBoundingClientRect();
+if(spins>20){
 
-raspar((e.clientX-r.left)*canvas.width/r.width,(e.clientY-r.top)*canvas.height/r.height);
+clearInterval(intervalo);
 
-});
-
-canvas.addEventListener("touchmove",(e)=>{
-
-let r=canvas.getBoundingClientRect();
-
-let x=(e.touches[0].clientX-r.left)*canvas.width/r.width;
-let y=(e.touches[0].clientY-r.top)*canvas.height/r.height;
-
-raspar(x,y);
-
-});
+resultado();
 
 }
 
-/* RESULTADO */
+},100);
 
-function check(){
+}
 
-if(raspados<9) return;
+function resultado(){
 
-let contagem={};
+let a=document.getElementById("s1").innerText;
+let b=document.getElementById("s2").innerText;
+let c=document.getElementById("s3").innerText;
 
-resultados.forEach(s=>{
+localStorage.setItem("slotUsado","1");
 
-contagem[s]=(contagem[s]||0)+1;
+if(a===b && b===c && a!=="❌"){
 
-});
-
-let simbolo=null;
-
-if(contagem["🍔"]>=3) simbolo="🍔";
-if(contagem["🥤"]>=3) simbolo="🥤";
-if(contagem["🧀"]>=3) simbolo="🧀";
-
-document.getElementById("jogo").style.display="none";
-document.getElementById("resultado").style.display="block";
-
-localStorage.setItem("raspadinha","1");
-
-/* GERAR CODIGO */
-
-let codigo="TL"+Math.floor(Math.random()*100000);
-
-document.getElementById("codigo").innerText="Código: "+codigo;
-
-if(simbolo){
-
-let premio=premios[simbolo];
-
-document.getElementById("titulo").innerHTML="🎉 PARABÉNS!";
-
-document.getElementById("imgPremio").src=premio.img;
+document.getElementById("resultado").innerHTML="🏆 JACKPOT! Você ganhou!";
 
 document.getElementById("som").play();
 
@@ -338,61 +229,35 @@ confete();
 
 }else{
 
-document.getElementById("titulo").innerHTML="❌ Não foi dessa vez";
+document.getElementById("resultado").innerHTML="❌ Não foi dessa vez";
 
 }
 
 }
-
-/* CONFETE */
 
 function confete(){
 
-for(let i=0;i<120;i++){
+for(let i=0;i<150;i++){
 
 let c=document.createElement("div");
 
-c.style.position="fixed";
-c.style.width="10px";
-c.style.height="10px";
+c.className="confete";
+
+c.style.left=Math.random()*100+"vw";
 
 c.style.background="hsl("+Math.random()*360+"deg,100%,50%)";
 
-c.style.left=Math.random()*100+"vw";
-c.style.top="-10px";
-
-c.style.animation="fall 3s linear forwards";
+c.style.animationDuration=(Math.random()*3+2)+"s";
 
 document.body.appendChild(c);
 
-setTimeout(()=>c.remove(),3000);
+setTimeout(()=>c.remove(),4000);
 
 }
-
-}
-
-/* WHATSAPP */
-
-function compartilhar(){
-
-let texto="Acabei de jogar a raspadinha da Tales Lanches! 🍔🎰";
-
-window.open("https://wa.me/?text="+encodeURIComponent(texto));
 
 }
 
 </script>
-
-<style>
-
-@keyframes fall{
-to{
-transform:translateY(100vh) rotate(720deg);
-opacity:0;
-}
-}
-
-</style>
 
 </body>
 </html>
