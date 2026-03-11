@@ -1,39 +1,39 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html>
 <head>
-<meta charset="UTF-8">
+
 <title>Raspadinha Tales Lanches</title>
 
 <style>
 
 body{
-background:#000;
-color:#fff;
+background:black;
+color:white;
 font-family:Arial;
 text-align:center;
+margin-top:100px;
 }
 
 h1{
 color:yellow;
 }
 
-.grid{
-display:grid;
-grid-template-columns:repeat(3,120px);
-gap:10px;
-justify-content:center;
-margin-top:40px;
+button{
+
+background:yellow;
+border:none;
+padding:20px;
+font-size:20px;
+cursor:pointer;
+border-radius:10px;
+
 }
 
-.card{
-background:#222;
-border:3px solid yellow;
-height:120px;
-display:flex;
-align-items:center;
-justify-content:center;
+#resultado{
+
+margin-top:40px;
 font-size:30px;
-cursor:pointer;
+
 }
 
 </style>
@@ -44,83 +44,31 @@ cursor:pointer;
 
 <h1>🎰 Raspadinha Tales Lanches</h1>
 
-<div id="game" class="grid"></div>
+<button onclick="raspar()">RASPAR</button>
 
-<script type="module">
+<div id="resultado"></div>
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+<script>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAMbD1Al2iME8WO9RwwAsxmVJg5TGsWfT4",
-  authDomain: "tales-32c5a.firebaseapp.com",
-  projectId: "tales-32c5a",
-};
+function raspar(){
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+let premios = [
 
-const params = new URLSearchParams(window.location.search);
-const code = params.get("code");
-
-if(!code){
-alert("Código inválido");
-}
-
-const ref = doc(db,"raspadinhas",code);
-const snap = await getDoc(ref);
-
-if(!snap.exists()){
-alert("Código não existe");
-}
-
-if(snap.data().usado){
-alert("Essa raspadinha já foi usada!");
-}
-
-const premios = [
-"🍔 X Burguer Gratis",
-"🥤 Coca Lata",
-"🎁 Cheddar Gratis",
-"🎁 Catupiry Gratis",
-"🚚 Entrega Gratis",
-"💸 5 Reais Desconto",
+"🍔 X Burguer grátis",
+"🧀 Cheddar grátis",
+"🧀 Catupiry grátis",
+"🚚 Entrega grátis",
+"🥤 Coca lata",
+"💰 R$5 de desconto",
 "❌ Não foi dessa vez"
+
 ];
 
-function gerarGrid(){
+let premio = premios[Math.floor(Math.random()*premios.length)];
 
-let resultado=[];
-
-for(let i=0;i<9;i++){
-
-let premio=premios[Math.floor(Math.random()*premios.length)];
-resultado.push(premio);
-
-let card=document.createElement("div");
-card.className="card";
-card.innerHTML="?";
-
-card.onclick=async ()=>{
-
-card.innerHTML=premio;
-
-// salvar no firebase que foi usado
-await updateDoc(ref,{
-usado:true,
-premio:premio,
-data:new Date().toLocaleString()
-});
-
-};
-
-document.getElementById("game").appendChild(card);
+document.getElementById("resultado").innerHTML = premio;
 
 }
-
-}
-
-gerarGrid();
 
 </script>
 
