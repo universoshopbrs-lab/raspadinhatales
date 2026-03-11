@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
 
 <meta charset="UTF-8">
@@ -7,7 +8,7 @@
 
 <title>Tales Lanches Raspadinha</title>
 
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="css/style.css">
 
 </head>
 
@@ -16,22 +17,21 @@
 <div class="container">
 
 <h1>🍔 TALES LANCHES</h1>
+
 <h2>RASPADINHA PREMIADA</h2>
 
-<p>Pedidos acima de <b>R$60</b> ganham uma raspadinha!</p>
-
-<input id="phone" placeholder="Digite seu telefone">
-
-<button onclick="startGame()">Jogar</button>
-
-<p id="msg"></p>
+<p>Encontre 3 símbolos iguais</p>
 
 <div id="game" class="grid"></div>
 
+<p id="result"></p>
+
 </div>
 
-<script src="firebase.js"></script>
-<script src="game.js"></script>
+<script type="module" src="js/firebase.js"></script>
+<script type="module" src="js/checkLink.js"></script>
+<script type="module" src="js/game.js"></script>
 
 </body>
+
 </html>
