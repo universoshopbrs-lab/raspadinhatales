@@ -9,58 +9,145 @@
 
 <style>
 
-body{
-background:#000;
-color:white;
+*{
+box-sizing:border-box;
 font-family:Arial;
-text-align:center;
-margin:0;
-padding:20px;
 }
 
-h1{
+body{
+margin:0;
+background:#000;
+color:white;
+text-align:center;
+}
+
+/* HEADER */
+
+header{
+padding:20px;
+background:#111;
+border-bottom:3px solid #FFD700;
+}
+
+header h1{
 color:#FFD700;
-text-shadow:0 0 10px #FFD700;
+margin:0;
+}
+
+/* GRID */
+
+.container{
+padding:20px;
+max-width:420px;
+margin:auto;
 }
 
 .grid{
 display:grid;
 grid-template-columns:repeat(3,1fr);
-gap:10px;
-max-width:350px;
-margin:auto;
+gap:12px;
 }
+
+/* CARTÕES */
+
+.card{
+
+position:relative;
+aspect-ratio:1/1;
+border-radius:12px;
+overflow:hidden;
+background:#111;
+
+border:2px solid #FFD700;
+
+box-shadow:
+0 0 10px #FFD700,
+0 0 20px #FFD700;
+
+animation:brilho 2s infinite alternate;
+
+}
+
+@keyframes brilho{
+
+from{box-shadow:0 0 5px #FFD700}
+to{box-shadow:0 0 20px #FFD700}
+
+}
+
+.card span{
+
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+font-size:40px;
+
+}
+
+/* CANVAS RASPAGEM */
 
 canvas{
+
+position:absolute;
+top:0;
+left:0;
 width:100%;
-height:100px;
-border-radius:10px;
+height:100%;
+
 }
 
-#telaPremio{
+/* TELA FINAL */
+
+#resultado{
+
 display:none;
-margin-top:30px;
+padding:30px;
+
 }
 
-#telaPremio img{
-width:150px;
+#resultado img{
+
+width:160px;
+margin:20px 0;
+
+}
+
+.codigo{
+
+background:#111;
+border:2px dashed #FFD700;
+padding:15px;
+margin:20px;
+font-size:20px;
+letter-spacing:3px;
+
 }
 
 button{
-padding:12px 20px;
-border:none;
+
 background:#FFD700;
+border:none;
+padding:14px 20px;
+font-size:16px;
 border-radius:8px;
-margin-top:15px;
 cursor:pointer;
+
 }
 
 </style>
+
 </head>
 
 <body>
 
+<header>
+
 <h1>🎰 Raspadinha Tales Lanches</h1>
+
+</header>
+
+<div class="container">
 
 <div id="jogo">
 
@@ -68,15 +155,17 @@ cursor:pointer;
 
 </div>
 
-<div id="telaPremio">
+<div id="resultado">
 
-<h2 id="textoPremio"></h2>
+<h2 id="titulo"></h2>
 
 <img id="imgPremio">
 
-<br>
+<div class="codigo" id="codigo"></div>
 
 <button onclick="compartilhar()">Compartilhar no WhatsApp</button>
+
+</div>
 
 </div>
 
@@ -84,36 +173,23 @@ cursor:pointer;
 
 <script>
 
-if(localStorage.getItem("raspadinhaUsada")){
+/* BLOQUEIO */
 
-document.body.innerHTML="<h1>⚠️ Você já usou sua raspadinha</h1>";
-
+if(localStorage.getItem("raspadinha")){
+document.body.innerHTML="<h2 style='padding:40px'>⚠️ Você já usou sua raspadinha</h2>";
 }
 
-const premios = {
+/* PREMIOS */
 
-"🍔":{
+const premios={
 
-nome:"X Burguer Grátis",
-img:"https://cdn-icons-png.flaticon.com/512/3075/3075977.png"
-
-},
-
-"🥤":{
-
-nome:"Coca Lata",
-img:"https://cdn-icons-png.flaticon.com/512/3050/3050155.png"
-
-},
-
-"🧀":{
-
-nome:"Cheddar Grátis",
-img:"https://cdn-icons-png.flaticon.com/512/685/685352.png"
-
-}
+"🍔":{nome:"X Burguer Grátis",img:"https://cdn-icons-png.flaticon.com/512/3075/3075977.png"},
+"🥤":{nome:"Coca Lata",img:"https://cdn-icons-png.flaticon.com/512/3050/3050155.png"},
+"🧀":{nome:"Cheddar Grátis",img:"https://cdn-icons-png.flaticon.com/512/685/685352.png"}
 
 };
+
+/* SIMBOLOS */
 
 const simbolos=[
 
@@ -124,48 +200,53 @@ const simbolos=[
 
 ];
 
+let lista=[...simbolos].sort(()=>Math.random()-0.5);
+
 let resultados=[];
 let raspados=0;
 
-function embaralhar(){
-
-return [...simbolos].sort(()=>Math.random()-0.5);
-
-}
-
-function criarCartela(){
-
-let lista=embaralhar();
-
 const grid=document.getElementById("grid");
+
+/* GERAR CARTELA */
 
 for(let i=0;i<9;i++){
 
+let card=document.createElement("div");
+card.className="card";
+
+let span=document.createElement("span");
+span.innerText=lista[i];
+
+card.appendChild(span);
+
 let canvas=document.createElement("canvas");
+card.appendChild(canvas);
 
-canvas.width=100;
-canvas.height=100;
+grid.appendChild(card);
 
-grid.appendChild(canvas);
+resultados.push(lista[i]);
 
 let ctx=canvas.getContext("2d");
 
-ctx.fillStyle="#999";
-ctx.fillRect(0,0,canvas.width,canvas.height);
+canvas.width=300;
+canvas.height=300;
 
-ctx.font="40px Arial";
-ctx.fillStyle="#000";
-ctx.fillText("RASPE",10,60);
+/* TEXTURA RASPAGEM */
 
-let simbolo=lista[i];
-resultados.push(simbolo);
+let grad=ctx.createLinearGradient(0,0,300,300);
 
-ctx.globalCompositeOperation="destination-over";
-ctx.font="40px Arial";
-ctx.fillStyle="#fff";
-ctx.fillText(simbolo,35,60);
+grad.addColorStop(0,"#bbb");
+grad.addColorStop(1,"#666");
 
-ctx.globalCompositeOperation="source-over";
+ctx.fillStyle=grad;
+
+ctx.fillRect(0,0,300,300);
+
+ctx.fillStyle="#222";
+ctx.font="bold 30px Arial";
+ctx.fillText("RASPE",90,160);
+
+/* RASPAGEM */
 
 let raspando=false;
 
@@ -174,23 +255,18 @@ function raspar(x,y){
 ctx.globalCompositeOperation="destination-out";
 
 ctx.beginPath();
-ctx.arc(x,y,15,0,Math.PI*2);
+ctx.arc(x,y,25,0,Math.PI*2);
 ctx.fill();
 
 }
 
 canvas.addEventListener("mousedown",()=>raspando=true);
+
 canvas.addEventListener("mouseup",()=>{
 
 raspando=false;
-
 raspados++;
-
-if(raspados===9){
-
-verificar();
-
-}
+check();
 
 });
 
@@ -198,18 +274,18 @@ canvas.addEventListener("mousemove",(e)=>{
 
 if(!raspando) return;
 
-let rect=canvas.getBoundingClientRect();
+let r=canvas.getBoundingClientRect();
 
-raspar(e.clientX-rect.left,e.clientY-rect.top);
+raspar((e.clientX-r.left)*canvas.width/r.width,(e.clientY-r.top)*canvas.height/r.height);
 
 });
 
 canvas.addEventListener("touchmove",(e)=>{
 
-let rect=canvas.getBoundingClientRect();
+let r=canvas.getBoundingClientRect();
 
-let x=e.touches[0].clientX-rect.left;
-let y=e.touches[0].clientY-rect.top;
+let x=(e.touches[0].clientX-r.left)*canvas.width/r.width;
+let y=(e.touches[0].clientY-r.top)*canvas.height/r.height;
 
 raspar(x,y);
 
@@ -217,9 +293,11 @@ raspar(x,y);
 
 }
 
-}
+/* RESULTADO */
 
-function verificar(){
+function check(){
+
+if(raspados<9) return;
 
 let contagem={};
 
@@ -229,22 +307,28 @@ contagem[s]=(contagem[s]||0)+1;
 
 });
 
-let simboloGanhador=null;
+let simbolo=null;
 
-if(contagem["🍔"]>=3) simboloGanhador="🍔";
-if(contagem["🥤"]>=3) simboloGanhador="🥤";
-if(contagem["🧀"]>=3) simboloGanhador="🧀";
+if(contagem["🍔"]>=3) simbolo="🍔";
+if(contagem["🥤"]>=3) simbolo="🥤";
+if(contagem["🧀"]>=3) simbolo="🧀";
 
 document.getElementById("jogo").style.display="none";
+document.getElementById("resultado").style.display="block";
 
-localStorage.setItem("raspadinhaUsada","true");
+localStorage.setItem("raspadinha","1");
 
-if(simboloGanhador){
+/* GERAR CODIGO */
 
-let premio=premios[simboloGanhador];
+let codigo="TL"+Math.floor(Math.random()*100000);
 
-document.getElementById("telaPremio").style.display="block";
-document.getElementById("textoPremio").innerHTML="🎉 Você ganhou "+premio.nome;
+document.getElementById("codigo").innerText="Código: "+codigo;
+
+if(simbolo){
+
+let premio=premios[simbolo];
+
+document.getElementById("titulo").innerHTML="🎉 PARABÉNS!";
 
 document.getElementById("imgPremio").src=premio.img;
 
@@ -254,37 +338,30 @@ confete();
 
 }else{
 
-document.getElementById("telaPremio").style.display="block";
-document.getElementById("textoPremio").innerHTML="❌ Não foi dessa vez";
+document.getElementById("titulo").innerHTML="❌ Não foi dessa vez";
 
 }
 
 }
 
-function compartilhar(){
-
-let texto="Ganhei um prêmio na raspadinha da Tales Lanches! 🍔";
-
-let url="https://wa.me/?text="+encodeURIComponent(texto);
-
-window.open(url);
-
-}
+/* CONFETE */
 
 function confete(){
 
-for(let i=0;i<80;i++){
+for(let i=0;i<120;i++){
 
 let c=document.createElement("div");
 
 c.style.position="fixed";
-c.style.width="8px";
-c.style.height="8px";
+c.style.width="10px";
+c.style.height="10px";
+
 c.style.background="hsl("+Math.random()*360+"deg,100%,50%)";
+
 c.style.left=Math.random()*100+"vw";
 c.style.top="-10px";
 
-c.style.animation="cair 3s linear forwards";
+c.style.animation="fall 3s linear forwards";
 
 document.body.appendChild(c);
 
@@ -294,21 +371,25 @@ setTimeout(()=>c.remove(),3000);
 
 }
 
-criarCartela();
+/* WHATSAPP */
+
+function compartilhar(){
+
+let texto="Acabei de jogar a raspadinha da Tales Lanches! 🍔🎰";
+
+window.open("https://wa.me/?text="+encodeURIComponent(texto));
+
+}
 
 </script>
 
 <style>
 
-@keyframes cair{
-
+@keyframes fall{
 to{
-
 transform:translateY(100vh) rotate(720deg);
 opacity:0;
-
 }
-
 }
 
 </style>
