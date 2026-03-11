@@ -1,37 +1,121 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Raspadinha Tales Lanches</title>
 
-<title>Tales Lanches Raspadinha</title>
+<style>
 
-<link rel="stylesheet" href="css/style.css">
+body{
+background:#000;
+color:#fff;
+font-family:Arial;
+text-align:center;
+}
+
+h1{
+color:yellow;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(3,120px);
+gap:10px;
+justify-content:center;
+margin-top:40px;
+}
+
+.card{
+background:#222;
+border:3px solid yellow;
+height:120px;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:30px;
+cursor:pointer;
+}
+
+</style>
 
 </head>
 
 <body>
 
-<div class="container">
-
-<h1>🍔 TALES LANCHES</h1>
-
-<h2>RASPADINHA PREMIADA</h2>
-
-<p>Encontre 3 símbolos iguais</p>
+<h1>🎰 Raspadinha Tales Lanches</h1>
 
 <div id="game" class="grid"></div>
 
-<p id="result"></p>
+<script type="module">
 
-</div>
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-<script type="module" src="js/firebase.js"></script>
-<script type="module" src="js/checkLink.js"></script>
-<script type="module" src="js/game.js"></script>
+const firebaseConfig = {
+  apiKey: "SUA_API",
+  authDomain: "SEU_AUTH",
+  projectId: "SEU_PROJECT",
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const params = new URLSearchParams(window.location.search);
+const code = params.get("code");
+
+if(!code){
+alert("Código inválido");
+}
+
+const ref = doc(db,"raspadinhas",code);
+const snap = await getDoc(ref);
+
+if(!snap.exists()){
+alert("Código não existe");
+}
+
+if(snap.data().usado){
+alert("Essa raspadinha já foi usada!");
+}
+
+const premios = [
+"🍔 X Burguer Gratis",
+"🥤 Coca Lata",
+"🎁 Cheddar Gratis",
+"🎁 Catupiry Gratis",
+"🚚 Entrega Gratis",
+"💸 5 Reais Desconto",
+"❌ Não foi dessa vez"
+];
+
+function gerarGrid(){
+
+let resultado=[];
+
+for(let i=0;i<9;i++){
+
+let premio=premios[Math.floor(Math.random()*premios.length)];
+resultado.push(premio);
+
+let card=document.createElement("div");
+card.className="card";
+card.innerHTML="?";
+
+card.onclick=()=>{
+
+card.innerHTML=premio;
+
+};
+
+document.getElementById("game").appendChild(card);
+
+}
+
+}
+
+gerarGrid();
+
+</script>
 
 </body>
-
 </html>
