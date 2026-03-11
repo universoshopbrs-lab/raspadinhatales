@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -10,7 +11,7 @@
 
 body{
 background:#000;
-color:#fff;
+color:white;
 font-family:Arial;
 text-align:center;
 margin:0;
@@ -19,18 +20,15 @@ padding:20px;
 
 h1{
 color:#FFD700;
-font-size:32px;
-text-shadow:0 0 15px #FFD700;
+text-shadow:0 0 10px #FFD700;
 }
 
 .grid{
-
 display:grid;
 grid-template-columns:repeat(3,1fr);
-gap:12px;
+gap:10px;
 max-width:350px;
 margin:auto;
-
 }
 
 canvas{
@@ -39,27 +37,22 @@ height:100px;
 border-radius:10px;
 }
 
-#resultado{
-font-size:26px;
-margin-top:20px;
+#telaPremio{
+display:none;
+margin-top:30px;
 }
 
-.confete{
-position:fixed;
-width:10px;
-height:10px;
-background:red;
-top:-10px;
-animation:cair 3s linear forwards;
+#telaPremio img{
+width:150px;
 }
 
-@keyframes cair{
-
-to{
-transform:translateY(100vh) rotate(720deg);
-opacity:0;
-}
-
+button{
+padding:12px 20px;
+border:none;
+background:#FFD700;
+border-radius:8px;
+margin-top:15px;
+cursor:pointer;
 }
 
 </style>
@@ -69,19 +62,66 @@ opacity:0;
 
 <h1>🎰 Raspadinha Tales Lanches</h1>
 
+<div id="jogo">
+
 <div class="grid" id="grid"></div>
 
-<div id="resultado"></div>
+</div>
+
+<div id="telaPremio">
+
+<h2 id="textoPremio"></h2>
+
+<img id="imgPremio">
+
+<br>
+
+<button onclick="compartilhar()">Compartilhar no WhatsApp</button>
+
+</div>
 
 <audio id="som" src="https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3"></audio>
 
 <script>
 
-const simbolos = [
+if(localStorage.getItem("raspadinhaUsada")){
+
+document.body.innerHTML="<h1>⚠️ Você já usou sua raspadinha</h1>";
+
+}
+
+const premios = {
+
+"🍔":{
+
+nome:"X Burguer Grátis",
+img:"https://cdn-icons-png.flaticon.com/512/3075/3075977.png"
+
+},
+
+"🥤":{
+
+nome:"Coca Lata",
+img:"https://cdn-icons-png.flaticon.com/512/3050/3050155.png"
+
+},
+
+"🧀":{
+
+nome:"Cheddar Grátis",
+img:"https://cdn-icons-png.flaticon.com/512/685/685352.png"
+
+}
+
+};
+
+const simbolos=[
+
 "🍔","🍔","🍔",
 "🥤","🥤","🥤",
 "🧀","🧀",
 "❌"
+
 ];
 
 let resultados=[];
@@ -115,10 +155,17 @@ ctx.fillRect(0,0,canvas.width,canvas.height);
 
 ctx.font="40px Arial";
 ctx.fillStyle="#000";
-ctx.fillText("?",40,60);
+ctx.fillText("RASPE",10,60);
 
 let simbolo=lista[i];
 resultados.push(simbolo);
+
+ctx.globalCompositeOperation="destination-over";
+ctx.font="40px Arial";
+ctx.fillStyle="#fff";
+ctx.fillText(simbolo,35,60);
+
+ctx.globalCompositeOperation="source-over";
 
 let raspando=false;
 
@@ -133,7 +180,19 @@ ctx.fill();
 }
 
 canvas.addEventListener("mousedown",()=>raspando=true);
-canvas.addEventListener("mouseup",()=>raspando=false);
+canvas.addEventListener("mouseup",()=>{
+
+raspando=false;
+
+raspados++;
+
+if(raspados===9){
+
+verificar();
+
+}
+
+});
 
 canvas.addEventListener("mousemove",(e)=>{
 
@@ -156,28 +215,6 @@ raspar(x,y);
 
 });
 
-setTimeout(()=>{
-
-ctx.globalCompositeOperation="destination-over";
-
-ctx.font="40px Arial";
-ctx.fillStyle="#fff";
-ctx.fillText(simbolo,35,60);
-
-},100);
-
-canvas.addEventListener("mouseup",()=>{
-
-raspados++;
-
-if(raspados===9){
-
-verificar();
-
-}
-
-});
-
 }
 
 }
@@ -192,40 +229,66 @@ contagem[s]=(contagem[s]||0)+1;
 
 });
 
-let premio="❌ Não foi dessa vez";
+let simboloGanhador=null;
 
-if(contagem["🍔"]>=3) premio="🍔 X Burguer grátis";
-if(contagem["🥤"]>=3) premio="🥤 Coca lata";
-if(contagem["🧀"]>=3) premio="🧀 Cheddar grátis";
+if(contagem["🍔"]>=3) simboloGanhador="🍔";
+if(contagem["🥤"]>=3) simboloGanhador="🥤";
+if(contagem["🧀"]>=3) simboloGanhador="🧀";
 
-document.getElementById("resultado").innerHTML="Resultado: "+premio;
+document.getElementById("jogo").style.display="none";
 
-if(premio!=="❌ Não foi dessa vez"){
+localStorage.setItem("raspadinhaUsada","true");
 
-confete();
+if(simboloGanhador){
+
+let premio=premios[simboloGanhador];
+
+document.getElementById("telaPremio").style.display="block";
+document.getElementById("textoPremio").innerHTML="🎉 Você ganhou "+premio.nome;
+
+document.getElementById("imgPremio").src=premio.img;
+
 document.getElementById("som").play();
 
+confete();
+
+}else{
+
+document.getElementById("telaPremio").style.display="block";
+document.getElementById("textoPremio").innerHTML="❌ Não foi dessa vez";
+
 }
+
+}
+
+function compartilhar(){
+
+let texto="Ganhei um prêmio na raspadinha da Tales Lanches! 🍔";
+
+let url="https://wa.me/?text="+encodeURIComponent(texto);
+
+window.open(url);
 
 }
 
 function confete(){
 
-for(let i=0;i<100;i++){
+for(let i=0;i<80;i++){
 
 let c=document.createElement("div");
 
-c.className="confete";
-
-c.style.left=Math.random()*100+"vw";
-
+c.style.position="fixed";
+c.style.width="8px";
+c.style.height="8px";
 c.style.background="hsl("+Math.random()*360+"deg,100%,50%)";
+c.style.left=Math.random()*100+"vw";
+c.style.top="-10px";
 
-c.style.animationDuration=(Math.random()*3+2)+"s";
+c.style.animation="cair 3s linear forwards";
 
 document.body.appendChild(c);
 
-setTimeout(()=>c.remove(),5000);
+setTimeout(()=>c.remove(),3000);
 
 }
 
@@ -234,6 +297,21 @@ setTimeout(()=>c.remove(),5000);
 criarCartela();
 
 </script>
+
+<style>
+
+@keyframes cair{
+
+to{
+
+transform:translateY(100vh) rotate(720deg);
+opacity:0;
+
+}
+
+}
+
+</style>
 
 </body>
 </html>
