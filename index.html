@@ -10,10 +10,7 @@
 
 <style>
 
-*{
-box-sizing:border-box;
-font-family:Arial;
-}
+*{box-sizing:border-box;font-family:Arial}
 
 body{
 margin:0;
@@ -22,62 +19,49 @@ color:white;
 text-align:center;
 }
 
-/* HEADER */
-
 header{
 padding:20px;
-background:#111;
 border-bottom:3px solid #FFD700;
 }
 
 header h1{
-margin:0;
 color:#FFD700;
+margin:0;
 text-shadow:0 0 10px #FFD700;
 }
 
-/* SLOT MACHINE */
-
 .slot-container{
-
-margin-top:50px;
+margin-top:60px;
 perspective:800px;
-
 }
 
 .slots{
-
 display:flex;
 justify-content:center;
-gap:15px;
-
+gap:20px;
 }
 
 .slot{
 
-width:80px;
-height:80px;
+width:90px;
+height:90px;
 
 background:#000;
 border:3px solid #FFD700;
 
-border-radius:12px;
+border-radius:15px;
 
 display:flex;
 align-items:center;
 justify-content:center;
 
-font-size:40px;
+font-size:45px;
 
 box-shadow:
 0 0 10px #FFD700,
 0 0 20px #FFD700 inset;
 
-transform-style:preserve-3d;
-
 }
-
-/* BOTÃO */
 
 button{
 
@@ -88,11 +72,11 @@ color:#000;
 
 border:none;
 
-padding:15px 30px;
+padding:16px 30px;
 
 font-size:18px;
 
-border-radius:10px;
+border-radius:12px;
 
 cursor:pointer;
 
@@ -104,36 +88,36 @@ animation:glow 1.5s infinite alternate;
 
 @keyframes glow{
 
-from{
-box-shadow:0 0 10px #FFD700;
-}
-
-to{
-box-shadow:0 0 25px #FFD700;
-}
+from{box-shadow:0 0 10px #FFD700}
+to{box-shadow:0 0 25px #FFD700}
 
 }
-
-/* RESULTADO */
 
 #resultado{
-
 margin-top:30px;
 font-size:22px;
-
+padding:10px;
 }
 
-/* CONFETE */
+.codigo{
+
+margin-top:15px;
+
+background:#111;
+border:2px dashed #FFD700;
+
+padding:12px;
+
+letter-spacing:3px;
+
+}
 
 .confete{
 
 position:fixed;
-
 width:10px;
 height:10px;
-
 top:-10px;
-
 animation:cair 3s linear forwards;
 
 }
@@ -154,9 +138,7 @@ opacity:0;
 <body>
 
 <header>
-
 <h1>🎰 Tales Lanches</h1>
-
 </header>
 
 <div class="slot-container">
@@ -172,6 +154,7 @@ opacity:0;
 <button onclick="girar()">🎰 Girar Slot</button>
 
 <div id="resultado"></div>
+<div id="codigo" class="codigo"></div>
 
 </div>
 
@@ -179,13 +162,28 @@ opacity:0;
 
 <script>
 
+/* BLOQUEAR JOGAR DE NOVO */
+
 if(localStorage.getItem("slotUsado")){
-
-document.body.innerHTML="<h2 style='padding:40px'>⚠️ Você já jogou hoje</h2>";
-
+document.body.innerHTML="<h2 style='padding:40px'>⚠️ Você já usou sua raspadinha</h2>";
 }
 
-const simbolos=["🍔","🥤","🧀","❌"];
+/* SIMBOLOS */
+
+const simbolos=["🧀","🧀","🛵","💰","🥤","🥤","🎟","🍔","❌"];
+
+/* PREMIOS */
+
+const premios={
+
+"🧀":"Queijo grátis (Catupiry ou Cheddar)",
+"🛵":"Entrega grátis",
+"💰":"R$5 de desconto",
+"🥤":"Coca (lata ou 1L)",
+"🎟":"5% de desconto no próximo pedido",
+"🍔":"X Burguer grátis"
+
+};
 
 function girar(){
 
@@ -199,7 +197,7 @@ document.getElementById("s3").innerText=simbolos[Math.floor(Math.random()*simbol
 
 spins++;
 
-if(spins>20){
+if(spins>25){
 
 clearInterval(intervalo);
 
@@ -221,7 +219,13 @@ localStorage.setItem("slotUsado","1");
 
 if(a===b && b===c && a!=="❌"){
 
-document.getElementById("resultado").innerHTML="🏆 JACKPOT! Você ganhou!";
+let premio=premios[a];
+
+document.getElementById("resultado").innerHTML="🏆 PARABÉNS! Você ganhou:<br><b>"+premio+"</b>";
+
+let codigo="TL"+Math.floor(Math.random()*100000);
+
+document.getElementById("codigo").innerText="Código: "+codigo;
 
 document.getElementById("som").play();
 
