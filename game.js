@@ -8,93 +8,76 @@ updateDoc
 
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-const symbols = [
-
-"🧀",
-
-"🧀",
-
-"🛵",
-
-"💰",
-
-"🥤",
-
-"🥤",
-
-"🎟",
-
+const simbolos = [
 "🍔",
-
+"🥤",
+"🧀",
+"🚚",
+"💰",
 "❌"
-
 ];
 
-const grid = document.getElementById("game");
+let resultado = [];
 
-const result = document.getElementById("result");
-
-let revealed = [];
+function gerarGrid(){
 
 for(let i=0;i<9;i++){
 
-let cell = document.createElement("div");
+let simbolo = simbolos[Math.floor(Math.random()*simbolos.length)];
+resultado.push(simbolo);
 
-cell.className="cell";
+let card = document.createElement("div");
+card.className="card";
+card.innerHTML="?";
 
-cell.innerText="?";
+card.onclick = ()=>{
 
-cell.onclick=function(){
+card.innerHTML=simbolo;
 
-reveal(cell);
+verificarResultado();
 
 };
 
-grid.appendChild(cell);
-
-}
-
-function reveal(cell){
-
-if(cell.innerText!=="?") return;
-
-let symbol = symbols[Math.floor(Math.random()*symbols.length)];
-
-cell.innerText=symbol;
-
-revealed.push(symbol);
-
-if(revealed.length===9){
-
-checkWin();
+document.getElementById("game").appendChild(card);
 
 }
 
 }
 
-async function checkWin(){
+function verificarResultado(){
 
-let count={};
+let contagem={};
 
-revealed.forEach(s=>{
-
-count[s]=(count[s]||0)+1;
-
+resultado.forEach(s=>{
+contagem[s]=(contagem[s]||0)+1;
 });
 
-let premio="Não ganhou";
+for(let s in contagem){
 
-for(let s in count){
+if(contagem[s]>=3){
 
-if(count[s]>=3 && s!=="❌"){
-
-premio=s;
+ganhou(s);
 
 }
 
 }
 
-result.innerText="Resultado: "+premio;
+}
+
+function ganhou(simbolo){
+
+let premio="";
+
+if(simbolo=="🍔") premio="X Burguer Gratis";
+if(simbolo=="🥤") premio="Coca Lata";
+if(simbolo=="🧀") premio="Cheddar Gratis";
+if(simbolo=="🚚") premio="Entrega Gratis";
+if(simbolo=="💰") premio="5 Reais Desconto";
+if(simbolo=="❌") premio="Não foi dessa vez";
+
+alert("Resultado: "+premio);
+
+}
 
 const ref = doc(db,"raspadinhas",window.code);
 
