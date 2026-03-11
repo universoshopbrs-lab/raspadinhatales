@@ -1,34 +1,27 @@
 body{
 
-background:#000;
-
+background:linear-gradient(180deg,#000,#111);
 color:white;
-
 font-family:Arial;
-
 text-align:center;
 
 }
 
 h1{
 
-color:#FFD700;
-
+color:yellow;
 font-size:40px;
+text-shadow:0 0 10px yellow;
 
 }
 
 .grid{
 
 display:grid;
-
-grid-template-columns:repeat(3,100px);
-
-gap:10px;
-
+grid-template-columns:repeat(3,120px);
+gap:15px;
 justify-content:center;
-
-margin-top:30px;
+margin-top:40px;
 
 }
 
